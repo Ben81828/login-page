@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>information</title>
+    <style>
+    </style>
+        <script> 
+        //身分證字號驗證   
+            //0 建立參考資料陣列
+            var letterList = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"];
+            var checkList = [10,11,12,13,14,15,16,17,34,18,19,20,21,22,35,23,24,25,26,27,28,29,32,30,31,33];                    
+            //1 字串轉陣列
+            function strToArray(text){
+                var IDlist = text.split("");
+                return IDlist;
+            }    
+            //2 陣列長為十
+            function lenDetector(list){
+                if (list.length == 10){return true}
+                else{return false};
+            }
+            //3 字首為字母
+            function firstIsletter(list){
+                if(list.length>0){
+                list[0] = list[0].toUpperCase();
+                if (letterList.indexOf(list[0])==-1){return false}
+                else{return true};
+                }            
+            }
+            //4 字首轉大寫
+            function firstletterUpper(list){
+                var l = []
+                for(let i of list){
+                    if(i/1!=i){
+                        i = i.toUpperCase();
+                    };
+                    l.push(i);
+                };
+                list = l;
+                return list;
+            }    
+            //5 第二個後為數字
+            function isnumber(list){
+                for(let i = 1; i < list.length; i++){
+                    if(isNaN(list[i])==false){continue;}
+                    else{return false;};    
+                }
+                return true;
+            }  
+            //6 第二個數字為一或二
+            function genderValid(list){
+                if(list[1]=="1" ||list[1]=="2"){return true;}
+                else{return false;};
+            }   
+            //7 檢查碼
+            function checkcodeValid(list){
+                var firstletterIndex = letterList.indexOf(list[0]);         
+                var firstletternum = checkList[firstletterIndex];
+                var weightNum1_2 = Math.floor(firstletternum/10) + Math.floor(firstletternum%10)*9;
+                var weightNum3_10 = 0;
+    
+                for(let i=1; i<=(list.length)-2; i++){
+                    weightNum3_10 += (list[i])/1*(9-i);
+                }
+    
+                var sumWeightNum = (weightNum1_2+weightNum3_10);                
+                var leftNum = sumWeightNum%10;
+    
+                if(leftNum==0 && list[list.length-1]==0){return true}
+                else{
+                    if(leftNum!=0 && (10-leftNum)==list[list.length-1]){return true;}
+                };
+    
+                return false;
+            };
+
+            //8 函式總匯
+            function IDcheck(){
+                var t = document.getElementById("IDtext").value;
+                var len = t.length;
+                if(len==0){
+                    document.getElementById("IDcheck").innerHTML = "請輸入身份證字號";
+                    return false;
+                }
+
+                var isCorrect = true;
+                //1 字串轉陣列
+                var IDlist = strToArray(t);
+                var txt = ""
+                //2 陣列長為十
+                if(lenDetector(IDlist)==false){
+                    txt += "字元長度須為10"+"\n";
+                    isCorrect=false;
+                };    
+                //3 字首為字母
+                if(firstIsletter(IDlist)==false){
+                    txt += "字首需為英文字母"+"\n";
+                    isCorrect=false;
+                };    
+                //4 字首轉大寫
+                firstletterUpper(IDlist);    
+                //5 第二個後為數字
+                if(isnumber(IDlist)==false){
+                    txt += "第二至第十個字元需為數字"+"\n";
+                    isCorrect=false;
+                };    
+                //6 第二個數字為一或二
+                if(genderValid(IDlist)==false){
+                    txt += "第二個字元為數字，且只能為1(男)或2(女)"+"\n";
+                    isCorrect=false;
+                }    
+                //7 檢查碼
+                if(checkcodeValid(IDlist)==false){
+                    txt += "第九個字元為檢查碼，本ID不符合檢查碼規則"+"\n";
+                    isCorrect=false;
+                }
+                //8 通過通知
+                if(isCorrect==true){
+                    txt = "";//"身分證字號符合格式";                  
+                    document.getElementById("IDcheck").innerHTML = txt;
+                    document.getElementById("IDtext").value = IDlist.join("");
+                    return isCorrect;
+                }
+                else{
+                    var _ = document.getElementById("IDcheck").style;
+                                
+                    document.getElementById("IDcheck").innerHTML = txt;
+                    
+                    return isCorrect;
+                }
+            }
+
+        //閏年檢查
+            function isLeap(){
+                var year = parseInt(document.getElementById("birthYear").value);
+                if(year%4==0){
+                    if(year%100==0){
+                        if(year%400==0){return true;}
+                        else{return false;}}
+                    else{return true;}}
+                else{return false;}
+            }
+        
+        //月份選單
+            function makeMonth(){
+            var monSelector = document.getElementById("birthMonth");
+            var txt = "<option value='0'>請選擇</option>"     
+            for(let i = 1;i <= 12; i++){
+                txt += '<option value="'+ i+'">'+i+'月</option>';
+                }
+            document.getElementById("birthMonth").innerHTML = txt;
+            }
+
+            function makeDay(){
+                var year = document.getElementById("birthYear").value;
+                var month = parseInt(document.getElementById("birthMonth").value);
+                if(year==false||month==false){
+                    document.getElementById("yearCheck").innerHTML = "請先輸入年份月份";
+                }
+                else{
+                var bigMonth = false;
+                var secMonth = false;
+                switch(month){
+                    case 1: bigMonth = true;break;
+                    case 2: secMonth = true;break;
+                    case 3: bigMonth = true;break;
+                    case 5: bigMonth = true;break;
+                    case 7: bigMonth = true;break;
+                    case 8: bigMonth = true;break;
+                    case 10: bigMonth = true;break;
+                    case 12: bigMonth = true;break;
+                    default:;
+                }
+                var txt = "<option value='0'>請選擇</option>";
+                if(bigMonth==true){
+                    for(let i = 1;i <= 31; i++){
+                        txt += '<option value="'+ i+'">'+i+'日</option>';
+                    }
+                }else{
+                    if(secMonth==true&&isLeap()==true){
+                        for(let i = 1;i <= 29; i++){
+                            txt += '<option value="'+ i+'">'+i+'日</option>';
+                        }   
+                    }else{
+                        if(secMonth==true&&isLeap()==false){
+                            for(let i = 1;i <= 28; i++){
+                                txt += '<option value="'+ i+'">'+i+'日</option>';
+                            }  
+                        }else{
+                            for(let i = 1;i <= 30; i++){
+                                txt += '<option value="'+ i+'">'+i+'日</option>';
+                            } 
+                        };
+                    };
+                };
+                document.getElementById("birthDay").innerHTML = txt;
+                document.getElementById("yearCheck").innerHTML = "";
+            }                 
+            }
+            var citylist ={
+    '臺北市': [
+        '中正區', '大同區', '中山區', '萬華區', '信義區', '松山區', '大安區', '南港區', '北投區', '內湖區', '士林區', '文山區'
+    ],
+    '新北市': [
+        '板橋區', '新莊區', '泰山區', '林口區', '淡水區', '金山區', '八里區', '萬里區', '石門區', '三芝區', '瑞芳區', '汐止區', '平溪區', '貢寮區', '雙溪區', '深坑區', '石碇區', '新店區', '坪林區', '烏來區', '中和區', '永和區', '土城區', '三峽區', '樹林區', '鶯歌區', '三重區', '蘆洲區', '五股區'
+    ],
+    '基隆市': [
+        '仁愛區', '中正區', '信義區', '中山區', '安樂區', '暖暖區', '七堵區'
+    ],
+    '桃園市': [
+        '桃園區', '中壢區', '平鎮區', '八德區', '楊梅區', '蘆竹區', '龜山區', '龍潭區', '大溪區', '大園區', '觀音區', '新屋區', '復興區'
+    ],
+    '新竹縣': [
+        '竹北市', '竹東鎮', '新埔鎮', '關西鎮', '峨眉鄉', '寶山鄉', '北埔鄉', '橫山鄉', '芎林鄉', '湖口鄉', '新豐鄉', '尖石鄉', '五峰鄉'
+    ],
+    '新竹市': [
+        '東區', '北區', '香山區'
+    ],
+    '苗栗縣': [
+        '苗栗市', '通霄鎮', '苑裡鎮', '竹南鎮', '頭份鎮', '後龍鎮', '卓蘭鎮', '西湖鄉', '頭屋鄉', '公館鄉', '銅鑼鄉', '三義鄉', '造橋鄉', '三灣鄉', '南庄鄉', '大湖鄉', '獅潭鄉', '泰安鄉'
+    ],
+    '臺中市': [
+        '中區', '東區', '南區', '西區', '北區', '北屯區', '西屯區', '南屯區', '太平區', '大里區', '霧峰區', '烏日區', '豐原區', '后里區', '東勢區', '石岡區', '新社區', '和平區', '神岡區', '潭子區', '大雅區', '大肚區', '龍井區', '沙鹿區', '梧棲區', '清水區', '大甲區', '外埔區', '大安區'
+    ],
+    '南投縣': [
+        '南投市', '埔里鎮', '草屯鎮', '竹山鎮', '集集鎮', '名間鄉', '鹿谷鄉', '中寮鄉', '魚池鄉', '國姓鄉', '水里鄉', '信義鄉', '仁愛鄉'
+    ],
+    '彰化縣': [
+        '彰化市', '員林鎮', '和美鎮', '鹿港鎮', '溪湖鎮', '二林鎮', '田中鎮', '北斗鎮', '花壇鄉', '芬園鄉', '大村鄉', '永靖鄉', '伸港鄉', '線西鄉', '福興鄉', '秀水鄉', '埔心鄉', '埔鹽鄉', '大城鄉', '芳苑鄉', '竹塘鄉', '社頭鄉', '二水鄉', '田尾鄉', '埤頭鄉', '溪州鄉'
+    ],
+    '雲林縣': [
+        '斗六市', '斗南鎮', '虎尾鎮', '西螺鎮', '土庫鎮', '北港鎮', '莿桐鄉', '林內鄉', '古坑鄉', '大埤鄉', '崙背鄉', '二崙鄉', '麥寮鄉', '臺西鄉', '東勢鄉', '褒忠鄉', '四湖鄉', '口湖鄉', '水林鄉', '元長鄉'
+    ],
+    '嘉義縣': [
+        '太保市', '朴子市', '布袋鎮', '大林鎮', '民雄鄉', '溪口鄉', '新港鄉', '六腳鄉', '東石鄉', '義竹鄉', '鹿草鄉', '水上鄉', '中埔鄉', '竹崎鄉', '梅山鄉', '番路鄉', '大埔鄉', '阿里山鄉'
+    ],
+    '嘉義市': [
+        '東區', '西區'
+    ],
+    '臺南市': [
+        '中西區', '東區', '南區', '北區', '安平區', '安南區', '永康區', '歸仁區', '新化區', '左鎮區', '玉井區', '楠西區', '南化區', '仁德區', '關廟區', '龍崎區', '官田區', '麻豆區', '佳里區', '西港區', '七股區', '將軍區', '學甲區', '北門區', '新營區', '後壁區', '白河區', '東山區', '六甲區', '下營區', '柳營區', '鹽水區', '善化區', '大內區', '山上區', '新市區', '安定區'
+    ],
+    '高雄市': [
+        '楠梓區', '左營區', '鼓山區', '三民區', '鹽埕區', '前金區', '新興區', '苓雅區', '前鎮區', '小港區', '旗津區', '鳳山區', '大寮區', '鳥松區', '林園區', '仁武區', '大樹區', '大社區', '岡山區', '路竹區', '橋頭區', '梓官區', '彌陀區', '永安區', '燕巢區', '田寮區', '阿蓮區', '茄萣區', '湖內區', '旗山區', '美濃區', '內門區', '杉林區', '甲仙區', '六龜區', '茂林區', '桃源區', '那瑪夏區'
+    ],
+    '屏東縣': [
+        '屏東市', '潮州鎮', '東港鎮', '恆春鎮', '萬丹鄉', '長治鄉', '麟洛鄉', '九如鄉', '里港鄉', '鹽埔鄉', '高樹鄉', '萬巒鄉', '內埔鄉', '竹田鄉', '新埤鄉', '枋寮鄉', '新園鄉', '崁頂鄉', '林邊鄉', '南州鄉', '佳冬鄉', '琉球鄉', '車城鄉', '滿州鄉', '枋山鄉', '霧台鄉', '瑪家鄉', '泰武鄉', '來義鄉', '春日鄉', '獅子鄉', '牡丹鄉', '三地門鄉'
+    ],
+    '宜蘭縣': [
+        '宜蘭市', '羅東鎮', '蘇澳鎮', '頭城鎮', '礁溪鄉', '壯圍鄉', '員山鄉', '冬山鄉', '五結鄉', '三星鄉', '大同鄉', '南澳鄉'
+    ],
+    '花蓮縣': [
+        '花蓮市', '鳳林鎮', '玉里鎮', '新城鄉', '吉安鄉', '壽豐鄉', '秀林鄉', '光復鄉', '豐濱鄉', '瑞穗鄉', '萬榮鄉', '富里鄉', '卓溪鄉'
+    ],
+    '臺東縣': [
+        '臺東市', '成功鎮', '關山鎮', '長濱鄉', '海端鄉', '池上鄉', '東河鄉', '鹿野鄉', '延平鄉', '卑南鄉', '金峰鄉', '大武鄉', '達仁鄉', '綠島鄉', '蘭嶼鄉', '太麻里鄉'
+    ],
+    '澎湖縣': [
+        '馬公市', '湖西鄉', '白沙鄉', '西嶼鄉', '望安鄉', '七美鄉'
+    ],
+    '金門縣': [
+        '金城鎮', '金湖鎮', '金沙鎮', '金寧鄉', '烈嶼鄉', '烏坵鄉'
+    ],
+    '連江縣': [
+        '南竿鄉', '北竿鄉', '莒光鄉', '東引鄉'
+    ]
+};
+            function makeCityh(){
+            var txt = "<option value='none'>請選擇城市</option>"   ;  
+            for(let attr in citylist){
+                txt += '<option value="'+ attr+'">'+attr+'</option>';
+                }
+            document.getElementById("city").innerHTML = txt;
+            }
+
+            function makeArea(){
+            var city = document.getElementById("city").value;
+            var txt = "<option value='none'>請選擇地區</option>" ;  
+            for(let area of citylist[city]){
+                txt += '<option value="'+ area+'">'+area+'</option>';
+                }
+            document.getElementById("area").innerHTML = txt;
+            }
+
+            function pwd6check(){
+                var pwd = document.getElementById("pwdFirst").value;
+                var len = pwd.length;
+                
+                if(len<6){
+                    document.getElementById("pwd6check").innerHTML = "請輸入至少六個字元";                  
+                    return false;
+                }
+                else{
+                    document.getElementById("pwd6check").innerHTML = "";//"密碼長度符合需求";                    
+                    return true;
+                }
+            }
+
+            function pwdsame(){
+                var origin = document.getElementById("pwdFirst").value;
+                var second = document.getElementById("pwdSecond").value;
+                var len = second.length;
+                if(len==0){
+                    document.getElementById("pwdsame").innerHTML = "請輸入確認密碼";                   
+                    return false;
+                }
+                if(origin!=second){
+                    document.getElementById("pwdsame").innerHTML = "兩次密碼輸入不同，請重新確認";                   
+                    return false;
+                }
+                else{
+                    document.getElementById("pwdsame").innerHTML = "";                     
+                    return true;
+                }
+            }
+            function namecheck(){
+                var n = document.getElementById("name").value;
+                var len = n.length;
+                if(n<=0){
+                    document.getElementById("nameCheck").innerHTML = "請輸入會員名稱";                   
+                    return false;
+                }
+                else{
+                    document.getElementById("nameCheck").innerHTML = "";         
+                    return true;
+                }
+            }
+
+            function genderCheck(){
+                var n = document.querySelector('input[name=gender]:checked') ? document.querySelector('input[name=gender]:checked').value:false;
+                if(n==false){                    
+                    document.getElementById("genderCheck").innerHTML = "請選擇性別";                  
+                    return false; 
+                }
+                else{                    
+                    document.getElementById("genderCheck").innerHTML = ""; 
+                    return true;
+                }
+            }
+            function PhoneCheck(){
+                var n = document.getElementById("tel").value;
+                // var len = n.length;
+                if(n<=0){
+                    document.getElementById("Phonecheck").innerHTML = "請輸入電話號碼";                  
+                    return false;
+                }
+                else{   
+                    document.getElementById("Phonecheck").innerHTML = "";               
+                    return true;
+                }
+            }
+            function addressCheck(){
+                var a = document.getElementById("city").value;
+                var b = document.getElementById("area").value;
+                var i = document.getElementById("road").value;
+                var j = document.getElementById("address").value;
+                var lena = a.length;
+                var lenb = b.length;
+                var leni = i.length;
+                var lenj = j.length;
+                if(leni==0||lenj==0||lena==0||lenb==0){
+                    document.getElementById("addresscheck").innerHTML = "請輸入完整地址";                  
+                    return false;
+                }
+                else{
+                    document.getElementById("addresscheck").innerHTML = "";                      
+                    return true;
+                }
+            }
+            function accountcheck(){
+                var n = document.getElementById("account").value;
+                var len = n.length;
+                if(n<=0){
+                    document.getElementById("accountcheck").innerHTML = "請輸入帳號";                   
+                    return false;
+                }
+                else{
+                    document.getElementById("accountcheck").innerHTML = "";                  
+                    return true;
+                }
+            }
+            function birthCheck(){
+                var i = document.getElementById("birthYear").value;
+                var j = document.getElementById("birthMonth").value;
+                var k = document.getElementById("birthDay").value;
+                var leni = i.length;
+                var lenj = j.length;
+                var lenk = k.length;
+                if(leni==0||lenj==0||lenk==0){
+                    document.getElementById("yearCheck").innerHTML = "請完整輸入生日日期";                  
+                    return false;
+                }
+                else{
+                    document.getElementById("yearCheck").innerHTML = "";                      
+                    return true;
+                }
+            }
+           
+            function allCheck(){
+                var txt = "";
+                if(IDcheck()!=true){
+                    txt += "身分證字號未輸入完整"+"\n";
+                }
+                ;
+                if(pwd6check()!=true){
+                    txt += "密碼未輸入完整"+"\n";
+                };
+                if(pwdsame()!=true){
+                    txt += "請輸入確認密碼"+"\n";
+                };
+                if(namecheck()!=true){
+                    txt += "請輸入姓名"+"\n";
+                };
+                if(genderCheck()!=true){
+                    txt += "請選擇性別"+"\n";
+                };
+                if(PhoneCheck()!=true){
+                    txt += "請輸入電話"+"\n";
+                };
+                if(addressCheck()!=true){
+                    txt += "請輸入完整地址"+"\n";
+                };
+                if(accountcheck()!=true){
+                    txt += "請輸入帳號"+"\n";
+                };
+                if(birthCheck()!=true){
+                    txt += "請輸入完整生日日期"+"\n";
+                };
+
+                if(txt!=""){
+                    alert(txt);    
+                }    
+            }
+            phoneNumform();
+            function phoneNumform(){
+                var txt = document.getElementById("tel").value? document.getElementById("tel").value : "";
+                var tlist = txt.split("");
+                var form = true;
+
+                if(tlist.length!=10){form = false;};
+                for(let i of tlist){if(i%1!=0){form = false;}};
+                if((tlist[0]=="0" && tlist[1]=="9")||(tlist[0]=="0" && tlist[1]=="2")){}
+                else{form = false;};
+
+
+                if(form){document.getElementById("Phonecheck").innerHTML = "";}
+                else{document.getElementById("Phonecheck").innerHTML = "電話號碼格式輸入錯誤";};
+
+                return form;
+            }
+
+        </script>
+</head>
+<body style="background-color:	#FFF4C1;" onload="makeMonth();makeCityh();startGround()">
+<!-- <body style="background-color:	#FFF4C1;"> -->
+    <h2 style="text-align: center;color:red">輸入會員資料</h2>
+<form>
+    <table border="3px" style="margin:auto; clear: left;color:green" name="information" width="800px">
+        <tr>
+            <td>*會員名稱</td>
+            <td><input type="text" id="name" onblur="namecheck()"><span id="nameCheck" style="float:right;color: red;" ></span></td>  
+        </tr>
+
+        <tr>
+            <td>*性別</td>
+            <td>
+                <input type="radio" name="gender" value="男性">男性
+                <input type="radio" name="gender" value="女性">女性
+                <span id="genderCheck" style="float:right;color: red;" ></span>
+            </td> 
+        </tr>
+
+        <tr>
+            <td>*生日</td>
+            <td>
+                西元<input type="text" name="year" id="birthYear" onblur="makeDay()" maxlength="4"  size="10%" >年
+                <select id="birthMonth" onclick="makeDay()"> </select>月
+                <select id="birthDay" ></select>日
+                <span id="yearCheck" style="float:right;color: red;" ></span>
+            </td> 
+        </tr>
+
+        <tr>
+            <td>*身分證字號</td>
+            <td ><input type="text" id="IDtext" onchange="IDcheck()" ><span id="IDcheck" style="float:right;color: red;text-align: right;"></span></td>  
+        </tr>
+        
+        <tr>
+            <td>*電話</td>
+            <td>
+                <!-- [0]{1}[9]{1}\d{8}|[8]{1}[8]{1}[6]{1}[9]{1}\d{8}|\d{8}|\d{7}|[0]{1}[0]{2}\d{10}|[0]{1}[2]{1}[\-]\d{8} -->
+                <input type="tel" id="tel" onchange="phoneNumform()">格式09XXXXXXXX或02XXXXXXXX
+                <span id="Phonecheck" style="float:right;color: red;"></span>
+            </td>  
+        </tr>
+
+
+        <tr>
+            <td>*住址</td>
+            <td>
+                <select id="city" onchange="makeArea()"> 
+                    <option>選縣市</option>   
+                </select>
+                <select id="area"> 
+                    <option>選地區</option>   
+                </select>
+                <input type="text" id="road">路
+                <input type="text" id="address">
+                <span id="addresscheck" style="float:right;color: red;"></span>
+            </td> 
+        </tr>
+
+        <tr>
+            <td>*帳號</td>
+            <td><input type="text" id="account"><span id="accountcheck" style="float:right;color: red;"></span></td>  
+        </tr>
+        
+        <tr>
+            <td>*密碼</td>
+            <td><input type="password" id="pwdFirst" onblur="pwd6check()">(必須六個字元以上)<span id="pwd6check" style="float:right;color: red;"></span></td>  
+        </tr>
+        <tr>
+            <td>*確認密碼</td>
+            <td><input type="password"  id="pwdSecond" onblur="pwdsame()"><span id="pwdsame" style="float:right;color: red;"></span></td> 
+        </tr>       
+    </table>
+
+    <div style="text-align:Center;margin-top: 15px;" text-align="center">
+        <!-- <button style="clear:both;margin:auto" value="送出"  onclick="allCheck()">送出</button> -->
+        <input type="button"  style="clear:both;margin:auto" value="送出" onclick="allCheck();" for="information">
+        <input type="reset"  style="clear:both;margin:auto" value="取消" for="information">
+    </div>   
+
+        <table  id="picBlock" border="3px" style="margin:auto; clear: left;position: relative;" onmousedown="startjump()">
+            <tr>
+                <td>                
+                    
+                    
+                    
+                    
+                </td>
+            </tr>
+        </table>
+    </form>
+
+    <script>
+        var GroundpicList = [];
+        var run = '<img src="run/test.gif " width="420px"  style="left:auto; top:75px; z-index:2;position: absolute;" />'
+        var appoint = false;
+        for(let i = 2; i<=26; i++){
+            txt = '<img src="run/'+i+'.png " width="420px"  style="left:auto; bottom:auto; z-index:1;position: absolute;" />';
+            GroundpicList.push(txt);
+        }  
+        
+        function groundCount(){  
+            if(c<=23){c+=1;}
+            else{c=0;}
+            document.getElementById("picBlock").innerHTML = GroundpicList[c]+run+'<img src="run/white.png " width="420px" height="150px" style="display:block;margin:auto;z-index:1">';
+        }
+        function startGround(){
+            c = 0;
+            timerID1 = setInterval(groundCount,10);
+        }
+
+        function jupmCount(){
+                h+=way;
+                if(h==35){way=1;}
+                if(h==75){way=-1;clearInterval(timerID2);}
+                run = '<img src="run/test.gif " width="420px"  style="left:auto; top:'+h+'px; z-index:2;position: absolute;" />';  
+            }
+
+        function startjump(){
+            if(run=='<img src="run/test.gif " width="420px"  style="left:auto; top:75px; z-index:2;position: absolute;" />'){
+                h= 75;
+                way = -1;
+                timerID2 = setInterval(jupmCount,5);
+            }   
+        }
+ 
+    </script>
+    
+</body>
+</html>
